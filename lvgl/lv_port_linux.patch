@@ -1,0 +1,53 @@
+diff --git forkSrcPrefix/lv_conf.h forkDstPrefix/lv_conf.h
+index 5343a7c909968799011d1cd4635943935eb181fd..7ebb4546da533a487facf17b829f7f41899d9b94 100644
+--- forkSrcPrefix/lv_conf.h
++++ forkDstPrefix/lv_conf.h
+@@ -938,7 +938,7 @@
+ #define LV_USE_TINY_TTF 1
+ #if LV_USE_TINY_TTF
+     /* Enable loading TTF data from files */
+-    #define LV_TINY_TTF_FILE_SUPPORT 0
++    #define LV_TINY_TTF_FILE_SUPPORT 1
+     #define LV_TINY_TTF_CACHE_GLYPH_CNT 256
+ #endif
+ 
+diff --git forkSrcPrefix/Makefile forkDstPrefix/Makefile
+index 7ccd1a664877d8e4d948a1eada195c6601f419d3..88fd285a3b35d8164db986b51e697a2c831695c8 100644
+--- forkSrcPrefix/Makefile
++++ forkDstPrefix/Makefile
+@@ -11,9 +11,9 @@ WARNINGS		:= -Wall -Wshadow -Wundef -Wmissing-prototypes -Wno-discarded-qualifie
+ 					-Wsizeof-pointer-memaccess -Wno-format-nonliteral -Wno-cast-qual -Wunreachable-code -Wno-switch-default -Wreturn-type -Wmultichar -Wformat-security \
+ 					-Wno-ignored-qualifiers -Wno-error=pedantic -Wno-sign-compare -Wno-error=missing-prototypes -Wdouble-promotion -Wclobbered -Wdeprecated -Wempty-body \
+ 					-Wshift-negative-value -Wstack-usage=2048 -Wno-unused-value -std=gnu99
+-CFLAGS 			?= -O3 -g0 -I$(LVGL_DIR)/ $(WARNINGS)
+-LDFLAGS 		?= -lm -lstdc++
+-BIN 			= main
++CFLAGS 			?= -O3 -g0 -fPIC -I$(LVGL_DIR)/ $(WARNINGS)
++LDFLAGS 		?= -lstdc++
++BIN 			= lvgl-arm-linux-uclibc.so
+ BUILD_DIR 		= ./build
+ BUILD_OBJ_DIR 	= $(BUILD_DIR)/obj
+ BUILD_BIN_DIR 	= $(BUILD_DIR)/bin
+@@ -22,11 +22,11 @@ prefix 			?= /usr
+ bindir 			?= $(prefix)/bin
+ 
+ #Collect the files to compile
+-MAINSRC          = ./main.c
++#MAINSRC          = ./main.c
+ 
+ include $(LVGL_DIR)/lvgl/lvgl.mk
+ 
+-CSRCS 			+=$(LVGL_DIR)/mouse_cursor_icon.c 
++#CSRCS 			+=$(LVGL_DIR)/mouse_cursor_icon.c 
+ 
+ OBJEXT 			?= .o
+ 
+@@ -62,7 +62,7 @@ $(BUILD_OBJ_DIR)/%.o: %.cpp lv_conf.h
+ 
+ default: $(TARGET)
+ 	@mkdir -p $(dir $(BUILD_BIN_DIR)/)
+-	$(CC) -o $(BUILD_BIN_DIR)/$(BIN) $(TARGET) $(LDFLAGS)
++	$(CC) -shared -o $(BUILD_BIN_DIR)/$(BIN) $(TARGET) $(LDFLAGS)
+ 
+ clean: 
+ 	rm -rf $(BUILD_DIR)

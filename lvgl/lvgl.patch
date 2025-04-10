@@ -1,0 +1,40 @@
+diff --git forkSrcPrefix/src/widgets/table/lv_table.h forkDstPrefix/src/widgets/table/lv_table.h
+index e4c56e63515ca8d4ba2da42912c90a130bf544bd..84e002268e2338da1ca91e1daff7375721753046 100644
+--- forkSrcPrefix/src/widgets/table/lv_table.h
++++ forkDstPrefix/src/widgets/table/lv_table.h
+@@ -78,8 +78,7 @@ void lv_table_set_cell_value(lv_obj_t * obj, uint32_t row, uint32_t col, const c
+  * @param fmt           `printf`-like format
+  * @note                New roes/columns are added automatically if required
+  */
+-void lv_table_set_cell_value_fmt(lv_obj_t * obj, uint32_t row, uint32_t col, const char * fmt,
+-                                 ...) LV_FORMAT_ATTRIBUTE(4, 5);
++//void lv_table_set_cell_value_fmt(lv_obj_t * obj, uint32_t row, uint32_t col, const char * fmt, ...) LV_FORMAT_ATTRIBUTE(4, 5);
+ 
+ /**
+  * Set the number of rows
+diff --git forkSrcPrefix/src/others/observer/lv_observer.h forkDstPrefix/src/others/observer/lv_observer.h
+index fa4b305b69699a897099694c61a37cecd1f53b1d..a478e533043cafaf906571b527959ef7c44e56f7 100644
+--- forkSrcPrefix/src/others/observer/lv_observer.h
++++ forkDstPrefix/src/others/observer/lv_observer.h
+@@ -123,7 +123,7 @@ void lv_subject_copy_string(lv_subject_t * subject, const char * buf);
+  * @param subject   pointer to Subject
+  * @param format    format string
+  */
+-void lv_subject_snprintf(lv_subject_t * subject, const char * format, ...) LV_FORMAT_ATTRIBUTE(2, 3);
++//void lv_subject_snprintf(lv_subject_t * subject, const char * format, ...) LV_FORMAT_ATTRIBUTE(2, 3);
+ 
+ /**
+  * Get current value of a string Subject.
+diff --git forkSrcPrefix/src/widgets/label/lv_label.h forkDstPrefix/src/widgets/label/lv_label.h
+index 0cc657622e8c99fd12bff3147f32dca464fbbce9..9fe1ab83fc757a0a5893a0f99cffa8d782098b42 100644
+--- forkSrcPrefix/src/widgets/label/lv_label.h
++++ forkDstPrefix/src/widgets/label/lv_label.h
+@@ -97,7 +97,7 @@ void lv_label_set_text(lv_obj_t * obj, const char * text);
+  * lv_label_set_text_fmt(label1, "%d user", user_num);
+  * @endcode
+  */
+-void lv_label_set_text_fmt(lv_obj_t * obj, const char * fmt, ...) LV_FORMAT_ATTRIBUTE(2, 3);
++//void lv_label_set_text_fmt(lv_obj_t * obj, const char * fmt, ...) LV_FORMAT_ATTRIBUTE(2, 3);
+ 
+ /**
+  * Set a static text. It will not be saved by the label so the 'text' variable

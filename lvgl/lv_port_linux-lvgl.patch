@@ -1,0 +1,53 @@
+diff --git forkSrcPrefix/src/draw/sw/blend/helium/lv_blend_helium.S forkDstPrefix/src/draw/sw/blend/helium/lv_blend_helium.S
+index 0cccc0e84eb76538c9620163f994d350b1102389..ff79a7746c66aea9ca411d6a998931f8e7d141c4 100644
+--- forkSrcPrefix/src/draw/sw/blend/helium/lv_blend_helium.S
++++ forkDstPrefix/src/draw/sw/blend/helium/lv_blend_helium.S
+@@ -11,7 +11,7 @@
+ 
+ /*GCC Workaround: missing .note.GNU-stack section implies executable stack*/
+ #ifdef __ELF__
+-.section .note.GNU-stack,"",@progbits
++//.section .note.GNU-stack,"",@progbits
+ #endif
+ 
+ #if LV_USE_DRAW_SW_ASM == LV_DRAW_SW_ASM_HELIUM && defined(__ARM_FEATURE_MVE) && __ARM_FEATURE_MVE && LV_USE_NATIVE_HELIUM_ASM
+diff --git forkSrcPrefix/src/draw/sw/blend/neon/lv_blend_neon.S forkDstPrefix/src/draw/sw/blend/neon/lv_blend_neon.S
+index ea6bd93c804a1cb972eee344fdeba47a7e2345d6..7ee7b774acac85a4b6582040f9f29f455fc30e11 100644
+--- forkSrcPrefix/src/draw/sw/blend/neon/lv_blend_neon.S
++++ forkDstPrefix/src/draw/sw/blend/neon/lv_blend_neon.S
+@@ -12,7 +12,7 @@
+ 
+ /*Workaround: missing .note.GNU-stack section implies executable stack*/
+ #ifdef __ELF__
+-.section .note.GNU-stack,"",@progbits
++//.section .note.GNU-stack,"",@progbits
+ #endif
+ 
+ #if LV_USE_DRAW_SW_ASM == LV_DRAW_SW_ASM_NEON
+diff --git forkSrcPrefix/src/drivers/evdev/lv_evdev.c forkDstPrefix/src/drivers/evdev/lv_evdev.c
+index e5a990e27e4bd2246fe67446616803e9eebbe622..a9d75d4f2c8c03edd7481abb754c4769bbe5db4e 100644
+--- forkSrcPrefix/src/drivers/evdev/lv_evdev.c
++++ forkDstPrefix/src/drivers/evdev/lv_evdev.c
+@@ -31,6 +31,7 @@
+ #include "../../stdlib/lv_mem.h"
+ #include "../../stdlib/lv_string.h"
+ #include "../../display/lv_display.h"
++#include "../../display/lv_display_private.h"
+ #include "../../widgets/image/lv_image.h"
+ 
+ /*********************
+@@ -129,10 +130,10 @@ static lv_point_t _evdev_process_pointer(lv_indev_t * indev, int x, int y)
+     int swapped_x = dsc->swap_axes ? y : x;
+     int swapped_y = dsc->swap_axes ? x : y;
+ 
+-    int offset_x = lv_display_get_offset_x(disp);
+-    int offset_y = lv_display_get_offset_y(disp);
+-    int width = lv_display_get_horizontal_resolution(disp);
+-    int height = lv_display_get_vertical_resolution(disp);
++    int offset_x = disp->offset_x;
++    int offset_y = disp->offset_y;
++    int width = disp->hor_res;
++    int height = disp->ver_res;
+ 
+     lv_point_t p;
+     p.x = _evdev_calibrate(swapped_x, dsc->min_x, dsc->max_x, offset_x, offset_x + width - 1);
