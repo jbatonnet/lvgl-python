@@ -3,25 +3,37 @@ import cffi
 
 import pycparser
 from pycparser.c_ast import *
+import sys
 
 def main():
 
     # Pregenerate CFFI backend
     ffibuilder = cffi.FFI()
-    ffibuilder.set_source("lvgl_ffi", None)
+    ffibuilder.set_source('lvgl_ffi', None)
     
-    with open('lvgl.h', 'r') as l:
-        lvgl_header_lines = l.readlines()
+    if __debug__:
+        #sys.argv.append('build/lvgl_preprocessed.h')
+        #sys.argv.append('build/lvgl_python/lvgl.py')
+        sys.argv.append('lvgl.h')
+        sys.argv.append('lvgl.py')
 
+    if len(sys.argv) < 3:
+        print('Usage: python generate-python.py <path_to_lvgl.h> <path_to_generated_lvgl.py>')
+        sys.exit(1)
+
+    lvgl_header_path = sys.argv[1]
+    with open(lvgl_header_path, 'r') as l:
+        lvgl_header = l.read()
+
+    lvgl_header = re.sub('[\r\n]+(inline )?static[\S\s]*?[\r\n]+\{[\S\s]*?[\r\n]+\}', '\n', lvgl_header)
+    lvgl_header = re.sub(',\s*\n+', ',', lvgl_header)
+    lvgl_header = lvgl_header.replace('void lv_span_set_text_static(lv_span_t * span, const char * text);', '', 1)
+
+    lvgl_header_lines = lvgl_header.splitlines()
     lvgl_header_lines = [ l for l in lvgl_header_lines if l.strip() and not l.startswith('#') ]
     lvgl_header_lines = [ l for l in lvgl_header_lines if not l.startswith('typedef int ') and not 'va_list' in l and not '...' in l ]
 
-    lvgl_header_lines.reverse()
-    lvgl_header_lines.remove('void lv_span_set_text_static(lv_span_t * span, const char * text);\n')
-    lvgl_header_lines.reverse()
-
-    lvgl_header = ''.join(lvgl_header_lines)
-    lvgl_header = re.sub('[\r\n]+(inline )?static[\S\s]*?[\r\n]+\{[\S\s]*?[\r\n]+\}', '\n', lvgl_header)
+    lvgl_header = '\n'.join(lvgl_header_lines)
 
     ffibuilder.cdef(lvgl_header)
     ffiBackendFile = ffibuilder.compile()
@@ -228,7 +240,8 @@ def main():
         return None
 
     # Prepare output file
-    with open('lvgl.py', 'w') as out:
+    lvgl_python_path = sys.argv[2]
+    with open(lvgl_python_path, 'w') as out:
 
         # Write template and imports
         with open('lvgl_template.py', 'r') as template:
@@ -505,6 +518,7 @@ def main():
                     if p.lines:
                         out.write('\n'.join([ '        ' + l for l in p.lines.splitlines() ]) + '\n')
                 out.write(f'        self._pointer = _lvgl.{structName[:-1]}create({", ".join([ p.usage for p in params ])})\n')
+                out.write(f'        _objects[self._pointer] = self\n')
 
             elif init:
                 del memberNodes[f'{structName[:-1]}init']
@@ -512,12 +526,12 @@ def main():
                 out.write(f'    def __init__(self):\n')
                 out.write(f'        self._pointer = ffi.new(\'{structName}[2]\')\n') # We overallocate to compensate for a bug in CFFI new on ARMv7 (most likely an struct packing issue)
                 out.write(f'        _lvgl.{structName[:-1]}init(self._pointer)\n')
-                out.write(f'        _objects[self] = self._pointer\n')
+                out.write(f'        _objects[self._pointer] = self\n')
 
             else:
                 out.write(f'    def __init__(self):\n')
                 out.write(f'        self._pointer = ffi.new(\'{structName}[2]\')\n') # We overallocate to compensate for a bug in CFFI new on ARMv7 (most likely an struct packing issue)
-                out.write(f'        _objects[self] = self._pointer\n')
+                out.write(f'        _objects[self._pointer] = self\n')
 
             for memberName, memberNode in memberNodes.items():
                 if memberName == 'lv_grad_init_stops':
@@ -547,11 +561,18 @@ def main():
                         out.write('\n'.join([ '        ' + l for l in p.lines.splitlines() ]) + '\n')
 
                 if returnType in structNodes:
-                    out.write(f'        result = {returnType[3:-2]}.__new__({returnType[3:-2]})\n')
-                    out.write(f'        result._pointer = _lvgl.{memberName}({", ".join([ "self._pointer" ] + [ p.usage for p in params ])})\n')
-                    out.write(f'        return result if result._pointer else None\n')
+                    out.write(f'        _pointer = _lvgl.{memberName}({", ".join([ "self._pointer" ] + [ p.usage for p in params ])})\n')
+                    out.write(f'        if _pointer == ffi.NULL:\n')
+                    out.write(f'            return None\n')
+                    out.write(f'        result = _objects.get(_pointer)\n')
+                    out.write(f'        if not result:\n')
+                    out.write(f'            result = {returnType[3:-2]}.__new__({returnType[3:-2]})\n')
+                    out.write(f'            result._pointer = _lvgl.{memberName}({", ".join([ "self._pointer" ] + [ p.usage for p in params ])})\n')
+                    out.write(f'        return result\n')
                 elif returnType == 'str':
                     out.write(f'        result = _lvgl.{memberName}({", ".join([ "self._pointer" ] + [ p.usage for p in params ])})\n')
+                    out.write(f'        if result == ffi.NULL:\n')
+                    out.write(f'            return None\n')
                     out.write(f'        result = ffi.cast(\'char*\', result)\n')
                     out.write(f'        result = ffi.string(result)\n')
                     out.write(f'        return result.decode(\'utf-8\')\n')

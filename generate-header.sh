@@ -3,14 +3,6 @@
 cp lvgl/lvgl/lv_conf_template.h lvgl/lv_conf.h
 
 cd lvgl/lv_port_linux
-git apply ../lv_port_linux.patch
-cd ../..
-
-# TODO: Build linux port
-# TODO: Build Windows
-
-cd lvgl/lvgl
-git apply ../lvgl.patch
 cd ../..
 
 gcc -E -std=c99 -Ifake_libc_include \

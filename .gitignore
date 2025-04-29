@@ -260,3 +260,7 @@ paket-files/
 __pycache__/
 *.pyc
 lvgl_ffi.py
+
+# Python egg generation
+build/
+dist/

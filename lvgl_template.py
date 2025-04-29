@@ -12,7 +12,7 @@ try:
     _is_windows = False
     _is_linux = True
 
-    _target_library = 'lvgl-arm-linux-uclibc.so'
+    _target_library = 'liblvgl.so'
 except:
     _is_micropython = False
 
@@ -30,7 +30,7 @@ except:
             elif architecture[0] == '64bit':
                 _target_library = 'lvgl-x64-windows.dll'
         elif _is_linux:
-            _target_library = 'lvgl-arm-linux-uclibc.so'
+            _target_library = 'liblvgl.so'
     except:
         pass
 
@@ -63,5 +63,11 @@ def exists(path):
 _library_path = f'{os.getcwd()}/{_target_library}'
 if not exists(_library_path):
     _library_path = f'{os.path.dirname(os.path.realpath(__file__))}/{_target_library}'
+if not exists(_library_path):
+    ld_library_path = os.environ.get('LD_LIBRARY_PATH', '').split(':')
+    for path in ld_library_path:
+        ld_library_path = f'{path}/{_target_library}'
+        if exists(ld_library_path):
+            break
 if not exists(_library_path):
     raise Exception(f'Unable to find library {_target_library}')

@@ -1,8 +1,8 @@
-# 0 "lvgl/lvgl/lvgl.h"
-# 0 "<built-in>"
-# 0 "<command-line>"
+# 1 "lvgl/lvgl/lvgl.h"
+# 1 "<built-in>"
+# 1 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3 4
-# 0 "<command-line>" 2
+# 1 "<command-line>" 2
 # 1 "lvgl/lvgl/lvgl.h"
 # 16 "lvgl/lvgl/lvgl.h"
 # 1 "lvgl/lvgl/lv_version.h" 1
@@ -27,6 +27,7 @@
                 
 # 65 "lvgl/lvgl/src/lv_conf_internal.h"
 #pragma message("Possible failure to include lv_conf.h, please read the comment in this file if you get errors")
+# 65 "lvgl/lvgl/src/lv_conf_internal.h"
 # 4335 "lvgl/lvgl/src/lv_conf_internal.h"
 struct _silence_gcc_warning;
 struct _silence_gcc_warning;
@@ -714,6 +715,7 @@ void lv_mem_monitor(lv_mem_monitor_t * mon_p);
 # 1 "fake_libc_include/inttypes.h" 1
 # 12 "lvgl/lvgl/src/stdlib/lv_sprintf.h" 2
 # 52 "lvgl/lvgl/src/stdlib/lv_sprintf.h"
+int lv_snprintf(char * buffer, size_t count, const char * format, ...);
 
 int lv_vsnprintf(char * buffer, size_t count, const char * format, va_list va);
 # 26 "lvgl/lvgl/lvgl.h" 2
@@ -7033,7 +7035,7 @@ struct _lv_draw_image_dsc_t {
 
 
 
-    lv_blend_mode_t blend_mode : 4;
+    lv_blend_mode_t blend_mode : 3;
 
 
     uint16_t antialias : 1;
@@ -8873,14 +8875,7 @@ typedef enum {
 lv_obj_t * lv_label_create(lv_obj_t * parent);
 # 88 "lvgl/lvgl/src/widgets/bar/../label/lv_label.h"
 void lv_label_set_text(lv_obj_t * obj, const char * text);
-# 100 "lvgl/lvgl/src/widgets/bar/../label/lv_label.h"
-
-
-
-
-
-
-
+# 108 "lvgl/lvgl/src/widgets/bar/../label/lv_label.h"
 void lv_label_set_text_static(lv_obj_t * obj, const char * text);
 
 
@@ -11245,13 +11240,7 @@ typedef enum {
 lv_obj_t * lv_table_create(lv_obj_t * parent);
 # 71 "lvgl/lvgl/src/widgets/table/lv_table.h"
 void lv_table_set_cell_value(lv_obj_t * obj, uint32_t row, uint32_t col, const char * txt);
-# 81 "lvgl/lvgl/src/widgets/table/lv_table.h"
-
-
-
-
-
-
+# 88 "lvgl/lvgl/src/widgets/table/lv_table.h"
 void lv_table_set_row_count(lv_obj_t * obj, uint32_t row_cnt);
 
 
@@ -11268,11 +11257,11 @@ void lv_table_set_column_count(lv_obj_t * obj, uint32_t col_cnt);
 
 
 void lv_table_set_column_width(lv_obj_t * obj, uint32_t col_id, int32_t w);
-# 113 "lvgl/lvgl/src/widgets/table/lv_table.h"
+# 112 "lvgl/lvgl/src/widgets/table/lv_table.h"
 void lv_table_set_cell_ctrl(lv_obj_t * obj, uint32_t row, uint32_t col, lv_table_cell_ctrl_t ctrl);
-# 122 "lvgl/lvgl/src/widgets/table/lv_table.h"
+# 121 "lvgl/lvgl/src/widgets/table/lv_table.h"
 void lv_table_clear_cell_ctrl(lv_obj_t * obj, uint32_t row, uint32_t col, lv_table_cell_ctrl_t ctrl);
-# 134 "lvgl/lvgl/src/widgets/table/lv_table.h"
+# 133 "lvgl/lvgl/src/widgets/table/lv_table.h"
 void lv_table_set_cell_user_data(lv_obj_t * obj, uint16_t row, uint16_t col, void * user_data);
 
 
@@ -11282,7 +11271,7 @@ void lv_table_set_cell_user_data(lv_obj_t * obj, uint16_t row, uint16_t col, voi
 
 
 void lv_table_set_selected_cell(lv_obj_t * obj, uint16_t row, uint16_t col);
-# 155 "lvgl/lvgl/src/widgets/table/lv_table.h"
+# 154 "lvgl/lvgl/src/widgets/table/lv_table.h"
 const char * lv_table_get_cell_value(lv_obj_t * obj, uint32_t row, uint32_t col);
 
 
@@ -11306,7 +11295,7 @@ uint32_t lv_table_get_column_count(lv_obj_t * obj);
 
 
 int32_t lv_table_get_column_width(lv_obj_t * obj, uint32_t col);
-# 187 "lvgl/lvgl/src/widgets/table/lv_table.h"
+# 186 "lvgl/lvgl/src/widgets/table/lv_table.h"
 bool lv_table_has_cell_ctrl(lv_obj_t * obj, uint32_t row, uint32_t col, lv_table_cell_ctrl_t ctrl);
 
 
@@ -11571,18 +11560,7 @@ void lv_subject_init_string(lv_subject_t * subject, char * buf, char * prev_buf,
 
 
 void lv_subject_copy_string(lv_subject_t * subject, const char * buf);
-
-
-
-
-
-
-
-
-
-
-
-
+# 133 "lvgl/lvgl/src/others/sysmon/../../others/observer/lv_observer.h"
 const char * lv_subject_get_string(lv_subject_t * subject);
 # 142 "lvgl/lvgl/src/others/sysmon/../../others/observer/lv_observer.h"
 const char * lv_subject_get_previous_string(lv_subject_t * subject);
@@ -12306,11 +12284,21 @@ lv_result_t lv_evdev_discovery_stop(void);
 
 
 void lv_evdev_grab_device(lv_indev_t * indev);
+
+
+
+
+
 void lv_evdev_release_device(lv_indev_t * indev);
 
 
+
+
+
+
+
 void lv_evdev_set_swap_axes(lv_indev_t * indev, bool swap_axes);
-# 84 "lvgl/lvgl/src/drivers/evdev/lv_evdev.h"
+# 96 "lvgl/lvgl/src/drivers/evdev/lv_evdev.h"
 void lv_evdev_set_calibration(lv_indev_t * indev, int min_x, int min_y, int max_x, int max_y);
 
 

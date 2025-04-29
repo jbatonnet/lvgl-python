@@ -1,0 +1,9 @@
+MANIFEST.in
+build-lvgl-linux.sh
+setup.py
+lvgl_python/__init__.py
+lvgl_python.egg-info/PKG-INFO
+lvgl_python.egg-info/SOURCES.txt
+lvgl_python.egg-info/dependency_links.txt
+lvgl_python.egg-info/requires.txt
+lvgl_python.egg-info/top_level.txt
