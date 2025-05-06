@@ -31,7 +31,8 @@ def main():
 
     lvgl_header_lines = lvgl_header.splitlines()
     lvgl_header_lines = [ l for l in lvgl_header_lines if l.strip() and not l.startswith('#') ]
-    lvgl_header_lines = [ l for l in lvgl_header_lines if not l.startswith('typedef int ') and not 'va_list' in l and not '...' in l ]
+    #lvgl_header_lines = [ l for l in lvgl_header_lines if not l.startswith('typedef int ') and not 'va_list' in l and not '...' in l ]
+    lvgl_header_lines = [ l for l in lvgl_header_lines if not 'va_list' in l and not '...' in l ]
 
     lvgl_header = '\n'.join(lvgl_header_lines)
 
@@ -46,9 +47,11 @@ def main():
         content = content.replace('ffi = ', '')
         ffiBackendContent = content.strip()
 
-    ast = pycparser.parse_file('lvgl.h')
-    #ast.show(showcoord=True)
+    parser = pycparser.c_parser.CParser()
+    ast = parser.parse(lvgl_header, filename='<none>')
+    #ast = pycparser.parse_file('lvgl.h')
 
+    #ast.show(showcoord=True)
     insertTimingLog = False
 
     # Deny lists
@@ -74,7 +77,8 @@ def main():
         'lv_rand*',
     ]
     structsDenyList = [
-        'lv_color*_t'
+        'lv_color*_t',
+        'lv_style_transition_dsc_t'
     ]
     callbackDenyList = [
     ]
@@ -273,7 +277,7 @@ def main():
         out.write('################\n')
         out.write('# Enums\n')
         out.write('\n')
-        out.write('from enum import Enum\n')
+        out.write('from enum import Enum, Flag\n')
         out.write('\n')
 
         if insertTimingLog:
@@ -321,7 +325,7 @@ def main():
                     break
 
             if enumName:
-                out.write(f'class {enumName[3:-2].upper()}(Enum):\n')
+                out.write(f'class {enumName[3:-2].upper()}(Flag):\n')
 
             last_value = -1
             for v in enum.values:
@@ -387,6 +391,7 @@ def main():
                 memberPrefix = 'lv_grad_'
 
             memberNodes = [ [ n, f ] for n, f in functionNodes.items() if n.startswith(memberPrefix) and n not in classMethodNodes ]
+            #memberNodes = [ [ n, f ] for n, f in memberNodes if not n.endswith('_init') or n == f'{structName[:-1]}init' ]
             memberNodes = [ [ n, f ] for n, f in memberNodes if isinstance(f.args.params[0].type, PtrDecl) ]
             memberNodes = dict(memberNodes)
 
@@ -418,6 +423,9 @@ def main():
             out.write(f'\n')
 
             if structName == 'lv_style_t':
+                del memberNodes['lv_style_transition_dsc_init']
+                del classMethodNodes['lv_style_transition_dsc_init']
+
                 out.write(f'    def set_size(self, width, height):\n')
                 out.write(f'        self.set_width(width)\n')
                 out.write(f'        self.set_height(height)\n')
@@ -450,15 +458,6 @@ def main():
                 out.write(f'        self.set_transform_scale_x(value)\n')
                 out.write(f'        self.set_transform_scale_y(value)\n')
 
-                del memberNodes['lv_style_set_size']
-                del memberNodes['lv_style_set_pad_all']
-                del memberNodes['lv_style_set_pad_hor']
-                del memberNodes['lv_style_set_pad_ver']
-                del memberNodes['lv_style_set_pad_gap']
-                del memberNodes['lv_style_set_margin_hor']
-                del memberNodes['lv_style_set_margin_ver']
-                del memberNodes['lv_style_set_margin_all']
-                del memberNodes['lv_style_set_transform_scale']
             if structName == 'lv_obj_t':
                 out.write(f'    def move_foreground(self):\n')
                 out.write(f'        parent = self.get_parent()\n')
@@ -497,18 +496,6 @@ def main():
                 out.write(f'        self.set_style_transform_scale_x(value, selector)\n')
                 out.write(f'        self.set_style_transform_scale_y(value, selector)\n')
 
-                del memberNodes['lv_obj_move_foreground']
-                del memberNodes['lv_obj_move_background']
-                del memberNodes['lv_obj_set_style_size']
-                del memberNodes['lv_obj_set_style_pad_all']
-                del memberNodes['lv_obj_set_style_pad_hor']
-                del memberNodes['lv_obj_set_style_pad_ver']
-                del memberNodes['lv_obj_set_style_pad_gap']
-                del memberNodes['lv_obj_set_style_margin_hor']
-                del memberNodes['lv_obj_set_style_margin_ver']
-                del memberNodes['lv_obj_set_style_margin_all']
-                del memberNodes['lv_obj_set_style_transform_scale']
-
             if ctor:
                 del memberNodes[f'{structName[:-1]}create']
 
@@ -538,8 +525,9 @@ def main():
                     pass
                 params = getParams(memberNode.args.params[1:])
 
-                if memberName == 'lv_image_set_src':
-                    params[0].usage = 'src.encode(\'utf-8\')'
+                if memberName == 'lv_image_set_src' or memberName == 'lv_obj_set_style_bg_image_src':
+                    params[0].type_hint = 'str'
+                    params[0].usage = params[0].name + '.encode(\'utf-8\')'
 
                 if memberName == 'lv_qrcode_update':
                     out.write(f'    def update(self, data: \'str\'):\n')
@@ -567,7 +555,7 @@ def main():
                     out.write(f'        result = _objects.get(_pointer)\n')
                     out.write(f'        if not result:\n')
                     out.write(f'            result = {returnType[3:-2]}.__new__({returnType[3:-2]})\n')
-                    out.write(f'            result._pointer = _lvgl.{memberName}({", ".join([ "self._pointer" ] + [ p.usage for p in params ])})\n')
+                    out.write(f'            result._pointer = _pointer\n')
                     out.write(f'        return result\n')
                 elif returnType == 'str':
                     out.write(f'        result = _lvgl.{memberName}({", ".join([ "self._pointer" ] + [ p.usage for p in params ])})\n')

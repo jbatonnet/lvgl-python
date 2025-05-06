@@ -12,7 +12,7 @@ try:
     _is_windows = False
     _is_linux = True
 
-    _target_library = 'liblvgl.so'
+    _target_library = 'lvgl-arm-linux-uclibc.so'
 except:
     _is_micropython = False
 
@@ -22,7 +22,7 @@ except:
 
         architecture = platform.architecture()
         _is_windows = architecture[1] == 'WindowsPE'
-        _is_linux = architecture[1] == 'ELF'
+        _is_linux = platform.system() == 'Linux'
 
         if _is_windows:
             if architecture[0] == '32bit':
@@ -30,7 +30,7 @@ except:
             elif architecture[0] == '64bit':
                 _target_library = 'lvgl-x64-windows.dll'
         elif _is_linux:
-            _target_library = 'liblvgl.so'
+            _target_library = 'lvgl-arm-linux-uclibc.so'
     except:
         pass
 

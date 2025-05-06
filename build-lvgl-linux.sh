@@ -21,8 +21,8 @@ cd lv_port_linux
 make -j
 
 # Retrieve output
-cp -f build/bin/lvgl.so $TARGET_PATH/lvgl.bin
+cp -f build/bin/liblvgl.so $TARGET_PATH
 
 # Generate header file
 cd $CWD
-gcc -E -std=c99 -Ifake_libc_include -DPYCPARSER $BUILD_PATH/lv_port_linux/lvgl/lvgl.h > $TARGET_PATH/lvgl.h
+gcc -E -std=c99 -Ifake_libc_include -DPYCPARSER $BUILD_PATH/lv_port_linux/lvgl/lvgl.h > $(dirname $TARGET_PATH)/lvgl.h
